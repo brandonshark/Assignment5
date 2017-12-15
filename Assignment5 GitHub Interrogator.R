@@ -7,25 +7,16 @@ library(httpuv)
 #install.packages("httr")
 library(httr)
 
+
 oauth_endpoints("github")
 
 myapp = oauth_app(appname = "sharkeyb_GitHub",
-                   key = "61d84dc7a6f6f4eedc89",
-                   secret = "01a87bba8f3b3bd6078acec95ee2b7425f62a5d5")
+                  key = "61d84dc7a6f6f4eedc89",
+                  secret = "01a87bba8f3b3bd6078acec95ee2b7425f62a5d5")
 
 github_token = oauth2.0_token(oauth_endpoints("github"), myapp)
 
 gtoken = config(token = github_token)
-
-req = GET("https://api.github.com/users/jtleek/repos", gtoken)
-
-stop_for_status(req)
-
-json1 = content(req)
-
-gitDF = jsonlite::fromJSON(jsonlite::toJSON(json1))
-
-gitDF[gitDF$full_name == "jtleek/datasharing", "created_at"]
 
 userNames = c()
 createDate = c()
@@ -42,8 +33,35 @@ lastUpdated = startProfile_R$updated_at
 
 for(i in 1:length(userNames)){
   
-  nextFollowers = content(GET(paste0("https://api.github.com/users/",userNames[i],"/followers"), gtoken))
-  nextFollowersR = jsonlite::fromJSON(jsonlite::toJSON(nextFollowers))
-  userNames = c(userNames, nextFollowersR$login)
+  onceRemovedFollowers = content(GET(paste0("https://api.github.com/users/",userNames[i],"/followers"), gtoken))
+  onceRemovedFollowersR = jsonlite::fromJSON(jsonlite::toJSON(onceRemovedFollowers))
+  userNames = c(userNames, onceRemovedFollowersR$login)
 }
 
+userNames = c(unique(userNames))
+
+for(i in 1:length(userNames)){
+  
+  twiceRemovedFollowers = content(GET(paste0("https://api.github.com/users/",userNames[i],"/followers"), gtoken))
+  twiceRemovedFollowersR = jsonlite::fromJSON(jsonlite::toJSON(twiceRemovedFollowers))
+  userNames = c(userNames, twiceRemovedFollowersR$login)
+}
+
+userNames = c(unique(userNames))
+
+for(i in 1:length(userNames)){
+  
+  thriceRemovedFollowers = content(GET(paste0("https://api.github.com/users/",userNames[i],"/followers"), gtoken))
+  thriceRemovedFollowersR = jsonlite::fromJSON(jsonlite::toJSON(thriceRemovedFollowers))
+  userNames = c(userNames, thriceRemovedFollowersR$login)
+}
+
+userNames = c(unique(userNames))
+
+for(i in 1:length(userNames)){
+  
+  Profiles = content(GET(paste0("https://api.github.com/users/",userNames[i]), gtoken))
+  ProfilesR = jsonlite::fromJSON(jsonlite::toJSON(Profiles))
+  createDate = c(createDate, ProfilesR$created_at)
+  lastUpdateDate = c(lastUpdateDate, ProfilesR$updated_at)
+}
