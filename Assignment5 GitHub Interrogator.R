@@ -81,10 +81,10 @@ dates$lastUpdateDate = as.Date(dates$lastUpdateDate, format="%Y-%m-%d")
 
 
 p = plot_ly(data = dates, x = dates$createDate, y = dates$lastUpdateDate, type = "scatter", mode="markers",
-             marker = list(size = 10,
-                           color = 'rgba(255, 182, 193, .9)',
-                           line = list(color = 'rgba(152, 0, 0, .8)',
-                                       width = 2))) %>%
+            marker = list(size = 10,
+                          color = 'rgba(255, 182, 193, .9)',
+                          line = list(color = 'rgba(152, 0, 0, .8)',
+                                      width = 2))) %>%
   layout(title = "Created Date vs Last Updated Date",
          yaxis = list(title = 'Last Updated Date', showticklabels = TRUE), 
          xaxis = list(title = 'Create Date', showticklabels = TRUE))
