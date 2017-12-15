@@ -7,6 +7,11 @@ library(httpuv)
 #install.packages("httr")
 library(httr)
 
+#install.packages("plotly")
+library(plotly)
+
+library(stringr)
+
 
 oauth_endpoints("github")
 
@@ -17,6 +22,16 @@ myapp = oauth_app(appname = "sharkeyb_GitHub",
 github_token = oauth2.0_token(oauth_endpoints("github"), myapp)
 
 gtoken = config(token = github_token)
+
+req = GET("https://api.github.com/users/jtleek/repos", gtoken)
+
+stop_for_status(req)
+
+json1 = content(req)
+
+gitDF = jsonlite::fromJSON(jsonlite::toJSON(json1))
+
+gitDF[gitDF$full_name == "jtleek/datasharing", "created_at"]
 
 userNames = c()
 createDate = c()
@@ -65,3 +80,23 @@ for(i in 1:length(userNames)){
   createDate = c(createDate, ProfilesR$created_at)
   lastUpdateDate = c(lastUpdateDate, ProfilesR$updated_at)
 }
+
+dates = data.frame(createDate, lastUpdateDate)
+
+dates$createDate = str_sub(dates$createDate, 1, str_length(dates$createDate)-10)
+dates$lastUpdateDate = str_sub(dates$lastUpdateDate, 1, str_length(dates$lastUpdateDate)-10)
+
+dates$createDate = as.Date(dates$createDate, format="%Y-%m-%d")
+dates$lastUpdateDate = as.Date(dates$lastUpdateDate, format="%Y-%m-%d")
+
+
+p = plot_ly(data = dates, x = dates$createDate, y = dates$lastUpdateDate, type = "scatter", mode="markers",
+             marker = list(size = 10,
+                           color = 'rgba(255, 182, 193, .9)',
+                           line = list(color = 'rgba(152, 0, 0, .8)',
+                                       width = 2))) %>%
+  layout(title = "Created Date vs Last Updated Date",
+         yaxis = list(title = 'Last Updated Date', showticklabels = TRUE), 
+         xaxis = list(title = 'Create Date', showticklabels = TRUE))
+
+p
