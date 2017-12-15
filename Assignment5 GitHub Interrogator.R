@@ -25,4 +25,25 @@ json1 = content(req)
 
 gitDF = jsonlite::fromJSON(jsonlite::toJSON(json1))
 
-gitDF[gitDF$full_name == "jtleek/datasharing", "created_at"] 
+gitDF[gitDF$full_name == "jtleek/datasharing", "created_at"]
+
+userNames = c()
+createDate = c()
+lastUpdateDate = c()
+
+
+startProfile = content(GET("https://api.github.com/users/dowlind1", gtoken))
+startFollowers = content(GET("https://api.github.com/users/dowlind1/followers", gtoken))
+startProfileR = jsonlite::fromJSON(jsonlite::toJSON(startProfile))
+startFollowersR = jsonlite::fromJSON(jsonlite::toJSON(startFollowers))
+userNames = c(startFollowersR$login)
+create = startProfileR$created_at
+lastUpdated = startProfile_R$updated_at
+
+for(i in 1:length(userNames)){
+  
+  nextFollowers = content(GET(paste0("https://api.github.com/users/",userNames[i],"/followers"), gtoken))
+  nextFollowersR = jsonlite::fromJSON(jsonlite::toJSON(nextFollowers))
+  userNames = c(userNames, nextFollowersR$login)
+}
+
